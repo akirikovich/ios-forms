@@ -1,8 +1,8 @@
 (function ($) {
 	
-	$.fn.iosForms = function(options) {
+	$.fn.smartForm = function(options) {
 		
-		var settings = $.extend(true, $.fn.iosForms.defaults, options);
+		var settings = $.extend(true, $.fn.smartForm.defaults, options);
 		
 		return this.each(function() {
 			
@@ -17,46 +17,63 @@
 			buildLayout($el);
 			
 			$el.data('clearBtn').on('click', function() {
-				
-				var $clearBtn = $(this);
-				
-				$clearBtn.removeClass(settings.clearBtn.activeClass);
-				$el
-					.val('')
-					.focus();
-				
+				clearInput($el);
+				hideClearBtn($el);
 			});
 			
-			$el.on('keyup', function() {
-
-				if($el.val().length > 0 && !$el.data('clearBtn').hasClass(settings.clearBtn.activeClass)) {
-					$el.data('clearBtn').addClass(settings.clearBtn.activeClass);
-				} else if(!$el.data('clearBtn').hasClass(settings.clearBtn.activeClass)) {
-					$el.data('clearBtn').removeClass(settings.clearBtn.activeClass);
+			$el.on('keyup blur focus input', function() {
+				if($el.val().length > settings.field.minCharsCount) {
+					showClearBtn($el);
+				} else {
+					hideClearBtn($el);
 				}
-
 			});
 			
 			settings.afterCreate.call(this);
 			
 		});
 		
-		function buildLayout($el) {
+		function buildLayout($input) {
 			
-			$el.data('clearBtn', $('<i>').addClass(settings.clearBtn.class).attr('title', settings.clearBtn.title));
+			$input.data('clearBtn', $('<i>').addClass(settings.clearBtn.class).attr('title', settings.clearBtn.title));
 			
-			$el
+			$input
 				.addClass(settings.field.class)
 				.wrap($('<div>').addClass(settings.container.class))
-				.after($el.data('clearBtn'));
+				.after($input.data('clearBtn'));
 			
+		}
+		
+		function showClearBtn($input) {
+			
+			if(!$input.data('clearBtn').hasClass(settings.clearBtn.activeClass)) {
+				$input.data('clearBtn').addClass(settings.clearBtn.activeClass);
+			}
+
+		}
+		
+		function hideClearBtn($input) {
+			
+			if($input.data('clearBtn').hasClass(settings.clearBtn.activeClass)) {
+				$input.data('clearBtn').removeClass(settings.clearBtn.activeClass);
+			}
+			
+		}
+		
+		function clearInput($input) {
+			
+			$input
+				.val('')
+				.focus();
+
 		}
 
 	};
 	
-	$.fn.iosForms.defaults = {
+	$.fn.smartForm.defaults = {
 		field: {
-			class: 'ios-input'
+			class: 'ios-input',
+			minCharsCount: 3
 		},
 		container: {
 			class: 'ios-input-wrapper'
@@ -73,6 +90,26 @@
 			console.log("Finish");
 		}
 	};
+	
+	
+	
+	$.fn.smartTel = function(options) {
+		
+		var settings = $.extend(true, $.fn.smartTel.defaults, options);
+		
+		return this.each(function() {
+			
+			var $el = $(this),
+				tel = $el.data('tel');
+			
+			$el.wrap($('<a>').attr('href', 'tel:' + tel + ''));	
+			
+		});
+	}
+	
+	$.fn.smartTel.defaults = {
+		
+	}
 
 	
 }(jQuery));
@@ -81,11 +118,15 @@
 
 $(function() {
 	
-	$(".mobile-input").iosForms({
+	$(".smart-input").smartForm({
 		clearBtn: {
 			title: 'Очистить поле ввода'
 		}
-	}).css('border-color', '#DDD');
+	});
+	
+	$(".tel").smartTel({
+		
+	});
 	
 });
 
